@@ -6,6 +6,7 @@ export interface BagOutput {
   authURL: string;
   /** Present when the bag advertises the SAP signing protocol. */
   sapEndpoints?: SapEndpoints;
+  updateURL?: string;
 }
 
 export const defaultAuthURL =
@@ -83,14 +84,17 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
       }
     }
 
+    const updateURL = (dict.updateProduct as string | undefined) ??
+      (urlBag?.updateProduct as string | undefined);
+
     if (!authURL) {
       console.warn(
         "[Bag] authenticateAccount URL not found in bag, using default auth endpoint",
       );
-      return { authURL: defaultAuthURL, sapEndpoints };
+      return { authURL: defaultAuthURL, sapEndpoints, updateURL };
     }
 
-    return { authURL: normalizeAuthURL(authURL), sapEndpoints };
+    return { authURL: normalizeAuthURL(authURL), sapEndpoints, updateURL };
   } catch (error) {
     console.warn(
       `[Bag] Failed to fetch/parse bag, using default auth endpoint: ${
