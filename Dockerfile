@@ -1,6 +1,6 @@
 # Build stages run on the build machine's native architecture (BUILDPLATFORM)
 # and produce platform-independent artifacts; only the runtime layer is built
-# per target platform. This keeps linux/386 builds as cheap as amd64/arm64.
+# per target platform.
 FROM --platform=$BUILDPLATFORM node:20-alpine AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./

@@ -3,6 +3,11 @@ import { buildPlist } from "../../src/apple/plist";
 import { authenticate } from "../../src/apple/authenticate";
 import { appleRequest } from "../../src/apple/request";
 import { fetchBag } from "../../src/apple/bag";
+import { prepareSigner } from "../../src/apple/sap/client";
+
+vi.mock("../../src/apple/sap/client", () => ({
+  prepareSigner: vi.fn(),
+}));
 
 vi.mock("../../src/apple/request", () => ({
   appleRequest: vi.fn(),
@@ -18,6 +23,44 @@ vi.mock("../../src/apple/bag", async (importOriginal) => ({
 describe("apple/authenticate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('signs the exact request bytes again after a pod redirect', async () => {
+    const sapEndpoints = {
+      certificateURL: 'https://s.mzstatic.com/sap/setupCert.plist',
+      setupURL: 'https://fpinit.itunes.apple.com/v1/signSapSetup/legacy',
+      version: 200,
+    };
+    vi.mocked(fetchBag).mockResolvedValue({
+      authURL: 'https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate',
+      sapEndpoints,
+    });
+    const sign = vi.fn().mockResolvedValueOnce('signature-one').mockResolvedValueOnce('signature-two');
+    vi.mocked(prepareSigner).mockResolvedValue({ sign } as Awaited<ReturnType<typeof prepareSigner>>);
+    vi.mocked(appleRequest).mockResolvedValueOnce({
+      status: 302,
+      statusText: 'Found',
+      headers: { location: 'https://p23-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?Pod=23' },
+      rawHeaders: [],
+      body: '',
+    }).mockResolvedValueOnce({
+      status: 200,
+      statusText: 'OK',
+      headers: { pod: '23' },
+      rawHeaders: [],
+      body: buildPlist({ accountInfo: { appleId: 'test@example.com', address: { firstName: 'Test' } } }),
+    });
+
+    const account = await authenticate('test@example.com', 'pässword', undefined, undefined, 'aabbccddeeff');
+
+    expect(account.pod).toBe('23');
+    expect(prepareSigner).toHaveBeenCalledWith('aabbccddeeff', sapEndpoints);
+    expect(sign).toHaveBeenCalledTimes(2);
+    for (const [index, [request]] of vi.mocked(appleRequest).mock.calls.entries()) {
+      expect(sign.mock.calls[index][0]).toEqual(new TextEncoder().encode(request.body));
+      expect(request.headers?.['X-Apple-ActionSignature']).toBe(index === 0 ? 'signature-one' : 'signature-two');
+      expect(new URL(`https://${request.host}${request.path}`).pathname).toBe('/WebObjects/MZFinance.woa/wa/authenticate/');
+    }
   });
 
   it("sets guid query exactly once from bag endpoint", async () => {

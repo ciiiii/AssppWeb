@@ -7,6 +7,9 @@ wisp.options.hostname_whitelist = [
   /^auth\.itunes\.apple\.com$/,
   /^buy\.itunes\.apple\.com$/,
   /^init\.itunes\.apple\.com$/,
+  // SAP certificate and key exchange endpoints are required before sign-in.
+  /^s\.mzstatic\.com$/,
+  /^fpinit\.itunes\.apple\.com$/,
   /^p\d+-buy\.itunes\.apple\.com$/,
   /^downloaddispatch\.itunes\.apple\.com$/,
 ];

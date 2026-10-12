@@ -4,6 +4,7 @@ import net from "net";
 import { WebSocket } from "ws";
 import express from "express";
 import { setupWsProxy } from "../src/services/wsProxy.js";
+import { server as wisp } from "@mercuryworkshop/wisp-js/server";
 
 let httpServer: Server | null = null;
 let serverPort: number;
@@ -31,6 +32,14 @@ async function stopServer() {
 }
 
 describe("Wisp Proxy", () => {
+  it('allows SAP hosts and rejects lookalike domains', () => {
+    const allowed = (host: string) => wisp.options.hostname_whitelist.some((pattern: RegExp) => pattern.test(host));
+    expect(allowed('s.mzstatic.com')).toBe(true);
+    expect(allowed('fpinit.itunes.apple.com')).toBe(true);
+    expect(allowed('s.mzstatic.com.example.org')).toBe(false);
+    expect(allowed('other.mzstatic.com')).toBe(false);
+    expect(allowed('fpinit.itunes.apple.com.example.org')).toBe(false);
+  });
   afterEach(async () => {
     await stopServer();
   });
