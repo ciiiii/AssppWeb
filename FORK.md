@@ -10,6 +10,8 @@ The source changes come from these pull requests:
 The fork also permits the exact SAP certificate and setup hosts through Wisp.
 These hosts are `s.mzstatic.com` and `fpinit.itunes.apple.com`.
 Account credentials stay in the browser.
+Opening the account list does not start SAP preparation.
+Preparation starts only when the user initiates authentication.
 
 The Docker workflow tests both packages before it builds and publishes images.
 Images support `linux/amd64` and `linux/arm64`.
