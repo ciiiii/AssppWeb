@@ -1,5 +1,4 @@
 import { parseDownloadResponse, recoverUpdateEndpoint } from './downloadRecovery';
-import type { Account, Software, DownloadOutput, Sinf } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
@@ -10,6 +9,7 @@ import {
 } from "./config";
 import i18n from "../i18n";
 import { isRecoverableEmptyResponse, lookupLatestVersion } from './latestVersion';
+import type { Account, Software, DownloadOutput, Sinf } from "../types";
 
 export class DownloadError extends Error {
   constructor(

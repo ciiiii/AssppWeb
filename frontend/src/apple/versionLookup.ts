@@ -1,5 +1,4 @@
 import { parseDownloadResponse, recoverUpdateEndpoint } from './downloadRecovery';
-import type { Account, Software, VersionMetadata } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
@@ -10,6 +9,7 @@ import {
   redownloadEndpoint,
   volumeStoreEndpoint,
 } from "./config";
+import type { Account, Software, VersionMetadata } from "../types";
 
 export async function getVersionMetadata(
   account: Account,

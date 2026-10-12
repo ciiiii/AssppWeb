@@ -6,10 +6,14 @@ The source changes come from these pull requests:
 
 - [PR 89](https://github.com/Lakr233/AssppWeb/pull/89), head `835a54d`: browser SAP request signing.
 - [PR 91](https://github.com/Lakr233/AssppWeb/pull/91), head `500e1c4`: authentication URL and redirect normalization.
+- [PR 92](https://github.com/Lakr233/AssppWeb/pull/92), head `01999fc`: empty download and version response recovery.
 
 The fork also permits the exact SAP certificate and setup hosts through Wisp.
 These hosts are `s.mzstatic.com` and `fpinit.itunes.apple.com`.
 Account credentials stay in the browser.
+Download recovery keeps the account's store region and checks the requested app and version.
+Each alternative download endpoint is used at most once per operation.
+Account errors stop recovery; the code does not acquire a license or authenticate during download recovery.
 
 The Docker workflow tests both packages before it builds and publishes images.
 Images support `linux/amd64` and `linux/arm64`.
